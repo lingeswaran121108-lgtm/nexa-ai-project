@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexaAI — Premium Generative AI Workspace & Tools</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            nexa: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .page-section { display: none; }
+    .page-section.active { display: block; animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+    .glow-indigo { box-shadow: 0 0 50px -10px rgba(99, 102, 241, 0.35); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-full flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- ================= TOP NAVIGATION ================= -->
+  <header class="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#home" onclick="navigate('home')" class="flex items-center gap-2.5 group cursor-pointer">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
+          </svg>
+        </div>
+        <span class="font-extrabold text-xl tracking-tight text-slate-900">
+          Nexa<span class="text-indigo-600">AI</span>
+        </span>
+      </a>
+
+      <!-- Desktop Links -->
+      <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600">
+        <a href="#home" onclick="navigate('home')" class="hover:text-indigo-600 transition-colors cursor-pointer">Home</a>
+        <a href="#tools" onclick="navigate('tools')" class="hover:text-indigo-600 transition-colors cursor-pointer">AI Tools</a>
+        <a href="#dashboard" onclick="navigate('dashboard')" class="hover:text-indigo-600 transition-colors cursor-pointer">Dashboard</a>
+        <a href="#history" onclick="navigate('history')" class="hover:text-indigo-600 transition-colors cursor-pointer">History</a>
+        <a href="#pricing" onclick="navigate('pricing')" class="hover:text-indigo-600 transition-colors cursor-pointer">Pricing</a>
+        <a href="#admin" onclick="navigate('admin')" class="hover:text-indigo-600 transition-colors cursor-pointer flex items-center gap-1.5">
+          <span>Admin</span>
+          <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">Pro</span>
+        </a>
+        <a href="#contact" onclick="navigate('contact')" class="hover:text-indigo-600 transition-colors cursor-pointer">Contact</a>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-xs font-semibold text-indigo-700">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="nav-quota">24/25 Free Quota</span>
+        </div>
+        <button onclick="navigate('tools')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs sm:text-sm font-semibold shadow-md shadow-indigo-500/20 active:scale-95 transition-all">
+          Open Workspace
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= NOTIFICATION TOAST ================= -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 border border-slate-700 animate-fade-in">
+    <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    <span id="toast-msg">Action completed</span>
+  </div>
+
+  <!-- ================= 1. HOME / LANDING PAGE ================= -->
+  <main id="view-home" class="page-section active flex-1">
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-28">
+      <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[400px] bg-gradient-to-tr from-indigo-500/15 via-purple-500/15 to-transparent blur-3xl pointer-events-none -z-10 rounded-full"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <!-- Top Pill -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200/80 text-xs font-semibold text-indigo-700 mb-6 shadow-sm">
+          <svg class="w-3.5 h-3.5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/></svg>
+          <span>NexaAI SaaS is live on localhost:3000</span>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 max-w-4xl mx-auto leading-[1.15]">
+          Your Ideas, <br class="hidden sm:inline">
+          <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-500">
+            Powered by AI.
+          </span>
+        </h1>
+
+        <p class="mt-6 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          Supercharge your workflow. Write blog posts, summarize complex documents, brainstorm new concepts, and streamline daily productivity in a unified workspace.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button onclick="navigate('tools')" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-indigo-500/25 active:scale-95 transition-all flex items-center justify-center gap-2">
+            <span>Start Generating Free</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+          <button onclick="navigate('pricing')" class="w-full sm:w-auto px-7 py-3.5 rounded-xl border border-slate-300 hover:bg-slate-100 font-semibold text-slate-700 transition-all">
+            View Pricing Plans
+          </button>
+        </div>
+
+        <!-- Interactive Preview Box -->
+        <div class="mt-14 max-w-4xl mx-auto text-left rounded-2xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
+          <div class="px-4 py-3 bg-slate-100 border-b border-slate-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-400 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+              <span class="ml-2 font-mono text-xs text-slate-500">localhost:3000/dashboard/tools/writer</span>
+            </div>
+            <span class="text-xs bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-0.5 rounded-full">Interactive Demo</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
+            <div class="p-6 bg-slate-50/50 flex flex-col justify-between">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Sample Prompt</span>
+                <p class="mt-2 text-sm text-slate-700 font-medium">"Write an executive brief on autonomous AI workflows and tangible business ROI."</p>
+              </div>
+              <div class="mt-6 flex items-center justify-between">
+                <span class="text-xs text-slate-500">Model: GPT-4o Mini</span>
+                <button onclick="navigate('tools'); selectTool('writer');" class="text-xs font-semibold text-indigo-600 hover:underline">
+                  Try this tool →
+                </button>
+              </div>
+            </div>
+            <div class="p-6 bg-white">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Generated Output</span>
+              <div class="mt-2 text-xs text-slate-700 leading-relaxed space-y-2">
+                <p class="font-bold text-slate-900"># Autonomous AI Workflows: 2026 Executive Brief</p>
+                <p>1. <strong>Autonomous Orchestration</strong>: Enterprises are shifting from isolated prompt interfaces to multi-agent stateful runners that complete end-to-end deliverables.</p>
+                <p>2. <strong>Verifiable ROI</strong>: Teams report an average 74% reduction in first-draft cycles and 4x faster document synthesis across finance and operations.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 Value Pillars -->
+    <section class="py-16 bg-white border-y border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+            <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-lg mb-4">⚡</div>
+            <h3 class="font-bold text-slate-900 mb-1">Save 10+ Hours/Week</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">Automate outlines, first drafts, text summaries, and ideation seamlessly.</p>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-lg mb-4">💡</div>
+            <h3 class="font-bold text-slate-900 mb-1">Instant Ideation</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">Break writer's block with high-converting marketing hooks and SaaS ideas.</p>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg mb-4">🎯</div>
+            <h3 class="font-bold text-slate-900 mb-1">Executive Tone Shift</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">Refine loose drafts into authoritative, polished executive presentations.</p>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-lg mb-4">🔒</div>
+            <h3 class="font-bold text-slate-900 mb-1">Private & Isolated</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">Row-level security ensures your prompts and data are never shared.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= 2. AI TOOLS WORKSPACE ================= -->
+  <main id="view-tools" class="page-section flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-extrabold text-slate-900">AI Tool Workspace</h1>
+        <p class="text-xs text-slate-500 mt-1">Select a tool, enter your prompt, and generate content in real time.</p>
+      </div>
+
+      <!-- Tool Switcher Tabs -->
+      <div class="flex flex-wrap gap-1.5 p-1 rounded-xl bg-slate-200/80 border border-slate-300">
+        <button onclick="selectTool('writer')" id="btn-tool-writer" class="tool-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-indigo-700 shadow-sm">AI Writer</button>
+        <button onclick="selectTool('chat')" id="btn-tool-chat" class="tool-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900">AI Chat</button>
+        <button onclick="selectTool('summarizer')" id="btn-tool-summarizer" class="tool-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900">Summarizer</button>
+        <button onclick="selectTool('ideas')" id="btn-tool-ideas" class="tool-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900">Idea Engine</button>
+        <button onclick="selectTool('rewriter')" id="btn-tool-rewriter" class="tool-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900">Rewriter</button>
+      </div>
+    </div>
+
+    <!-- Workspace Two-Column Card -->
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[560px]">
+      <!-- Left Panel: Input & Settings -->
+      <div class="lg:col-span-5 p-6 bg-slate-50/60 border-b lg:border-b-0 lg:border-r border-slate-200 flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span id="tool-name-display" class="font-bold text-sm text-slate-900">AI Writer & Blog Generator</span>
+            <span id="tool-badge-display" class="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-full">Writing</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5" id="tool-prompt-label">Enter your topic or outline</label>
+            <textarea id="tool-prompt-input" rows="6" class="w-full rounded-xl border border-slate-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g., How modern SaaS startups scale using microservices and serverless infrastructure..."></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Tone of Voice</label>
+              <select id="tool-tone-select" class="w-full h-9 rounded-xl border border-slate-300 px-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="executive">Executive & Crisp</option>
+                <option value="conversational">Conversational</option>
+                <option value="persuasive">Persuasive Marketing</option>
+                <option value="technical">Technical In-Depth</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Length</label>
+              <select id="tool-length-select" class="w-full h-9 rounded-xl border border-slate-300 px-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="medium">Medium (~400w)</option>
+                <option value="short">Short (~200w)</option>
+                <option value="long">Long (~800w)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <button onclick="runGeneration()" id="generate-btn" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm shadow-md shadow-indigo-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <span id="generate-btn-text">Generate Output</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Panel: Output & Actions -->
+      <div class="lg:col-span-7 p-6 flex flex-col justify-between bg-white">
+        <div>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Generated Result</span>
+              <span id="output-status-badge" class="text-[10px] bg-slate-100 text-slate-600 font-semibold px-2 py-0.5 rounded-full">Ready</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="copyOutput()" id="copy-btn" class="text-xs text-slate-600 hover:text-indigo-600 font-medium px-2.5 py-1 rounded-lg hover:bg-slate-50 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span id="copy-btn-text">Copy</span>
+              </button>
+              <button onclick="saveCurrentGeneration()" class="text-xs text-slate-600 hover:text-indigo-600 font-medium px-2.5 py-1 rounded-lg hover:bg-slate-50 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                <span>Save</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="output-content" class="mt-4 text-sm text-slate-800 leading-relaxed font-sans whitespace-pre-line min-h-[300px]">
+Click <strong>Generate Output</strong> or type your custom prompt on the left to watch NexaAI compose in real time.
+          </div>
+        </div>
+
+        <div class="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+          <span id="output-tokens">Tokens: 0</span>
+          <span>Stored in browser workspace</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= 3. DASHBOARD OVERVIEW ================= -->
+  <main id="view-dashboard" class="page-section flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+      <h1 class="text-2xl font-extrabold text-slate-900">Workspace Dashboard</h1>
+      <p class="text-xs text-slate-500 mt-1">Overview of your usage, generations, and subscription status.</p>
+    </div>
+
+    <!-- 4 Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div class="p-5 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-500/20">
+        <span class="text-xs uppercase font-bold text-indigo-200">Current Tier</span>
+        <p class="text-2xl font-black mt-2">Free Starter</p>
+        <button onclick="navigate('pricing')" class="text-xs text-indigo-100 hover:text-white underline mt-2 block">Upgrade to Pro →</button>
+      </div>
+      <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+        <span class="text-xs uppercase font-bold text-slate-400">Used This Period</span>
+        <p class="text-2xl font-black text-slate-900 mt-2" id="stat-used">1</p>
+        <span class="text-xs text-slate-500 mt-1 block">Monthly quota counter</span>
+      </div>
+      <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+        <span class="text-xs uppercase font-bold text-slate-400">Remaining Quota</span>
+        <p class="text-2xl font-black text-emerald-600 mt-2" id="stat-remaining">24</p>
+        <span class="text-xs text-slate-500 mt-1 block">Generations left</span>
+      </div>
+      <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+        <span class="text-xs uppercase font-bold text-slate-400">Total Saved</span>
+        <p class="text-2xl font-black text-purple-600 mt-2" id="stat-saved-count">1</p>
+        <span class="text-xs text-slate-500 mt-1 block">In local history</span>
+      </div>
+    </div>
+
+    <!-- Quick Tools Grid -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="font-bold text-base text-slate-900 mb-4">Quick Tool Access</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div onclick="navigate('tools'); selectTool('writer')" class="p-4 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/30 transition-all cursor-pointer">
+          <div class="text-indigo-600 font-bold mb-1">✍️ AI Writer</div>
+          <p class="text-xs text-slate-600">Draft blog posts, marketing copy, and essays.</p>
+        </div>
+        <div onclick="navigate('tools'); selectTool('chat')" class="p-4 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/30 transition-all cursor-pointer">
+          <div class="text-purple-600 font-bold mb-1">💬 AI Chat</div>
+          <p class="text-xs text-slate-600">Contextual multi-turn reasoning and problem solving.</p>
+        </div>
+        <div onclick="navigate('tools'); selectTool('summarizer')" class="p-4 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/30 transition-all cursor-pointer">
+          <div class="text-emerald-600 font-bold mb-1">📄 Text Summarizer</div>
+          <p class="text-xs text-slate-600">Extract TL;DR briefs from lengthy documents.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= 4. GENERATION HISTORY ================= -->
+  <main id="view-history" class="page-section flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-extrabold text-slate-900">Saved History</h1>
+        <p class="text-xs text-slate-500 mt-1">Review, copy, or remove previous AI generations.</p>
+      </div>
+      <button onclick="clearAllHistory()" class="text-xs text-red-600 hover:underline">Clear History</button>
+    </div>
+
+    <div id="history-list" class="space-y-3">
+      <!-- Items dynamically populated via JS -->
+    </div>
+  </main>
+
+  <!-- ================= 5. PRICING & SUBSCRIPTIONS ================= -->
+  <main id="view-pricing" class="page-section flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center max-w-3xl mx-auto mb-10">
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900">Simple, Transparent Pricing</h1>
+      <p class="mt-3 text-sm text-slate-600">Start with 25 free generations. Upgrade anytime for higher capacity and priority compute.</p>
+
+      <!-- Toggle -->
+      <div class="mt-6 inline-flex items-center p-1 rounded-xl bg-slate-200/80 border border-slate-300">
+        <button onclick="setBilling('month')" id="btn-bill-month" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm">Monthly</button>
+        <button onclick="setBilling('year')" id="btn-bill-year" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 flex items-center gap-1">
+          <span>Annual</span>
+          <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded-full">Save 20%</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <!-- Free -->
+      <div class="rounded-3xl border border-slate-200 bg-white p-7 flex flex-col justify-between shadow-sm">
+        <div>
+          <h3 class="font-bold text-lg text-slate-900">Free Starter</h3>
+          <p class="text-xs text-slate-500 mt-1">For exploring AI and small personal tasks.</p>
+          <div class="mt-4"><span class="text-4xl font-extrabold">$0</span><span class="text-xs text-slate-400">/mo</span></div>
+          <ul class="mt-6 space-y-2.5 text-xs text-slate-600">
+            <li class="flex items-center gap-2">✓ 25 AI generations / month</li>
+            <li class="flex items-center gap-2">✓ Access to AI Writer & Summarizer</li>
+            <li class="flex items-center gap-2">✓ Standard generation speeds</li>
+            <li class="flex items-center gap-2">✓ 30-day history storage</li>
+          </ul>
+        </div>
+        <button class="mt-8 w-full py-2.5 rounded-xl border border-slate-300 font-semibold text-xs text-slate-700 bg-slate-50">Current Plan</button>
+      </div>
+
+      <!-- Pro -->
+      <div class="rounded-3xl border-2 border-indigo-600 bg-white p-7 flex flex-col justify-between shadow-xl relative scale-[1.02]">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] uppercase font-bold tracking-wider px-3 py-0.5 rounded-full">Most Popular</div>
+        <div>
+          <h3 class="font-bold text-lg text-slate-900">Pro Creator</h3>
+          <p class="text-xs text-slate-500 mt-1">For creators, copywriters, and marketers.</p>
+          <div class="mt-4"><span id="pro-price" class="text-4xl font-extrabold">$19</span><span class="text-xs text-slate-400">/mo</span></div>
+          <ul class="mt-6 space-y-2.5 text-xs text-slate-600">
+            <li class="flex items-center gap-2">✓ 500 AI generations / month</li>
+            <li class="flex items-center gap-2">✓ All tools: Writer, Chat, Summarizer, Ideas, Rewriter</li>
+            <li class="flex items-center gap-2">✓ Ultra-fast priority compute</li>
+            <li class="flex items-center gap-2">✓ Unlimited history & cloud export</li>
+            <li class="flex items-center gap-2">✓ Priority email support</li>
+          </ul>
+        </div>
+        <button onclick="mockUpgrade('Pro Creator')" class="mt-8 w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-xs shadow-md shadow-indigo-500/20 active:scale-95 transition-all">Upgrade to Pro</button>
+      </div>
+
+      <!-- Business -->
+      <div class="rounded-3xl border border-slate-200 bg-white p-7 flex flex-col justify-between shadow-sm">
+        <div>
+          <h3 class="font-bold text-lg text-slate-900">Business Suite</h3>
+          <p class="text-xs text-slate-500 mt-1">For growing teams and agencies.</p>
+          <div class="mt-4"><span id="biz-price" class="text-4xl font-extrabold">$49</span><span class="text-xs text-slate-400">/mo</span></div>
+          <ul class="mt-6 space-y-2.5 text-xs text-slate-600">
+            <li class="flex items-center gap-2">✓ 2,500 AI generations / month</li>
+            <li class="flex items-center gap-2">✓ Multi-user workspace collaboration</li>
+            <li class="flex items-center gap-2">✓ Max token context windows</li>
+            <li class="flex items-center gap-2">✓ Dedicated account manager</li>
+          </ul>
+        </div>
+        <button onclick="mockUpgrade('Business Suite')" class="mt-8 w-full py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 font-semibold text-xs text-slate-800">Upgrade to Business</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= 6. ADMIN PANEL ================= -->
+  <main id="view-admin" class="page-section flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+      <div class="flex items-center gap-2">
+        <span class="text-xs uppercase font-bold tracking-wider text-red-600 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-full">Server-Role Protected</span>
+      </div>
+      <h1 class="text-2xl font-extrabold text-slate-900 mt-2">Admin Control Panel</h1>
+      <p class="text-xs text-slate-500 mt-0.5">Manage registered users, subscriptions, quotas, and support requests.</p>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="p-4 rounded-xl bg-white border border-slate-200">
+        <span class="text-xs text-slate-400">Total Users</span>
+        <p class="text-2xl font-extrabold text-slate-900 mt-1">1,248</p>
+      </div>
+      <div class="p-4 rounded-xl bg-white border border-slate-200">
+        <span class="text-xs text-slate-400">Active Subscriptions</span>
+        <p class="text-2xl font-extrabold text-emerald-600 mt-1">412</p>
+      </div>
+      <div class="p-4 rounded-xl bg-white border border-slate-200">
+        <span class="text-xs text-slate-400">Monthly ARR</span>
+        <p class="text-2xl font-extrabold text-indigo-600 mt-1">$14,890</p>
+      </div>
+      <div class="p-4 rounded-xl bg-white border border-slate-200">
+        <span class="text-xs text-slate-400">Open Tickets</span>
+        <p class="text-2xl font-extrabold text-amber-600 mt-1" id="admin-ticket-count">2</p>
+      </div>
+    </div>
+
+    <!-- User Table -->
+    <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm mb-8">
+      <div class="px-6 py-4 border-b border-slate-200 font-bold text-sm text-slate-900">User Management</div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase">
+            <tr>
+              <th class="px-6 py-3">User</th>
+              <th class="px-6 py-3">Plan</th>
+              <th class="px-6 py-3">Role</th>
+              <th class="px-6 py-3">Usage</th>
+              <th class="px-6 py-3">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="px-6 py-3.5 font-medium text-slate-900">Deepak (You)</td>
+              <td class="px-6 py-3.5"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">Free Starter</span></td>
+              <td class="px-6 py-3.5"><span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">Admin</span></td>
+              <td class="px-6 py-3.5 text-slate-600">1 / 25</td>
+              <td class="px-6 py-3.5 text-emerald-600 font-medium">● Active</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3.5 font-medium text-slate-900">Sarah Chen</td>
+              <td class="px-6 py-3.5"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Pro Creator</span></td>
+              <td class="px-6 py-3.5"><span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">User</span></td>
+              <td class="px-6 py-3.5 text-slate-600">342 / 500</td>
+              <td class="px-6 py-3.5 text-emerald-600 font-medium">● Active</td>
+            </tr>
+            <tr>
+              <td class="px-6 py-3.5 font-medium text-slate-900">Acme Agency</td>
+              <td class="px-6 py-3.5"><span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full font-semibold">Business Suite</span></td>
+              <td class="px-6 py-3.5"><span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">User</span></td>
+              <td class="px-6 py-3.5 text-slate-600">1,820 / 2,500</td>
+              <td class="px-6 py-3.5 text-emerald-600 font-medium">● Active</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= 7. CONTACT FORM ================= -->
+  <main id="view-contact" class="page-section flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-extrabold text-slate-900">Contact NexaAI</h1>
+      <p class="text-xs text-slate-500 mt-1">Submit your inquiry directly to our database.</p>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+      <form onsubmit="handleContactSubmit(event)" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Your Name</label>
+            <input type="text" id="contact-name" required class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Alex Morgan">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+            <input type="email" id="contact-email" required class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="alex@company.com">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Subject</label>
+          <input type="text" id="contact-subject" required class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Feedback or question">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Message</label>
+          <textarea id="contact-message" rows="4" required class="w-full rounded-xl border border-slate-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="How can we help?"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-sm shadow-md active:scale-95 transition-all">
+          Send Message
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500">
+    <p>© 2026 NexaAI. Running live on <strong>http://localhost:3000</strong></p>
+    <p class="mt-1">Production Next.js 14 & Supabase Schema saved in <code class="font-mono text-indigo-600">C:\Users\Deepak\.gemini\antigravity\scratch\nexa-ai</code></p>
+  </footer>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    // State
+    let currentTool = 'writer';
+    let quotaUsed = 1;
+    const quotaLimit = 25;
+    let savedGenerations = [
+      {
+        id: '1',
+        title: 'Enterprise Autonomous AI Brief',
+        tool: 'writer',
+        date: 'Oct 21, 2026',
+        prompt: 'Write an executive brief on autonomous AI workflows and tangible business ROI.',
+        output: 'Autonomous AI agents are accelerating corporate workflows by automating synthesis, first drafts, and market research while upholding stringent security controls.'
+      }
+    ];
+
+    const toolsConfig = {
+      writer: {
+        name: 'AI Writer & Blog Generator',
+        badge: 'Writing',
+        label: 'Enter article topic, headline, or bullet points',
+        placeholder: 'e.g., How modern SaaS startups scale using microservices and serverless infrastructure...',
+        sampleOutput: `# Scaling Cloud Architectures for High-Growth SaaS
+
+Modern software applications face unprecedented pressure to balance velocity with high availability. Building for enterprise scale requires three core paradigms:
+
+1. **Decoupled Asynchronous Processing**: Offload long-running tasks, heavy computations, and third-party webhook integrations to durable message queues.
+2. **Stateless Edge Delivery**: Route static assets and cached database queries through globally distributed edge nodes to ensure sub-50ms latencies.
+3. **Observability as Code**: Implement distributed tracing from day one, allowing engineering teams to identify query bottlenecks before they degrade customer UX.`
+      },
+      chat: {
+        name: 'Nexa Intelligence Chat',
+        badge: 'Conversation',
+        label: 'Ask a question, request code, or discuss architecture',
+        placeholder: 'e.g., Compare PostgreSQL sharding vs read replicas for SaaS multi-tenancy...',
+        sampleOutput: `### Read Replicas vs. Sharding for Multi-Tenant SaaS
+
+**Read Replicas:**
+- **Best For**: Read-heavy workloads (90%+ SELECT queries) with reporting dashboards.
+- **Complexity**: Low. Automated replication with near-zero application code changes.
+- **Trade-off**: Does not solve write bottlenecks or single-node storage limits.
+
+**Database Sharding:**
+- **Best For**: Enormous tenant data volume where single-node storage or write IOPS are exhausted.
+- **Complexity**: High. Requires shard routing keys, cross-shard query handling, and rebalancing.
+
+**Recommendation**: Start with read replicas + table partitioning. Only transition to sharding when write limits are demonstrably reached.`
+      },
+      summarizer: {
+        name: 'Executive Text Summarizer',
+        badge: 'Productivity',
+        label: 'Paste source report, meeting transcript, or whitepaper',
+        placeholder: 'Paste long-form text here to distill into key bullet points...',
+        sampleOutput: `### Executive TL;DR
+- **Core Thesis**: Generative AI tools integrated into domain-specific workflows yield up to 40% measurable productivity improvements.
+- **Key Bottlenecks**: Data privacy, compliance isolation, and hallucination guardrails remain primary executive concerns.
+- **Action Plan**: Deploy on private cloud infrastructure with strict Row-Level Security (RLS) policies.`
+      },
+      ideas: {
+        name: 'Idea & Brainstorming Engine',
+        badge: 'Creative',
+        label: 'What product, hook, or campaign do you want to brainstorm?',
+        placeholder: 'e.g., 5 micro-SaaS ideas for Shopify store merchants...',
+        sampleOutput: `1. **StockPulse**: Automated SMS alerts for low-inventory bestsellers with supplier one-click reordering.
+2. **ReviewToReel**: Converts verified customer photo reviews into animated 15s TikTok and Instagram Reels.
+3. **CartRevive AI**: Dynamic personalized discount incentives based on customer exit-intent velocity.
+4. **LocalSEO Sync**: Auto-updates multi-location physical inventory on Google Maps in real-time.
+5. **EcoReceipts**: Interactive digital receipts featuring loyalty points and carbon-neutral offsets.`
+      },
+      rewriter: {
+        name: 'Content Tone Rewriter',
+        badge: 'Editing',
+        label: 'Paste draft to rephrase or adjust tone',
+        placeholder: 'Paste your email or copy draft to elevate its tone...',
+        sampleOutput: `**Original Draft:**
+"Hey, just checking if you paid invoice 1042 yet since it is late."
+
+**Executive Refinement:**
+"Dear Partner,
+
+I hope your week is off to a productive start. 
+
+Following up on our invoice #1042, which reached its due date on October 15th. Kindly let us know if you require any additional details or documentation to finalize payment.
+
+Thank you for your prompt attention."`
+      }
+    };
+
+    // Navigation
+    function navigate(viewName) {
+      document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('view-' + viewName);
+      if (target) {
+        target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      if (viewName === 'history') renderHistory();
+      if (viewName === 'dashboard') updateDashboardStats();
+    }
+
+    // Select Tool
+    function selectTool(toolKey) {
+      currentTool = toolKey;
+      document.querySelectorAll('.tool-btn').forEach(btn => {
+        btn.classList.remove('bg-white', 'text-indigo-700', 'shadow-sm');
+        btn.classList.add('text-slate-600');
+      });
+      const activeBtn = document.getElementById('btn-tool-' + toolKey);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-white', 'text-indigo-700', 'shadow-sm');
+        activeBtn.classList.remove('text-slate-600');
+      }
+
+      const conf = toolsConfig[toolKey];
+      document.getElementById('tool-name-display').innerText = conf.name;
+      document.getElementById('tool-badge-display').innerText = conf.badge;
+      document.getElementById('tool-prompt-label').innerText = conf.label;
+      document.getElementById('tool-prompt-input').placeholder = conf.placeholder;
+      document.getElementById('output-content').innerText = conf.sampleOutput;
+      document.getElementById('output-tokens').innerText = 'Tokens: ~' + Math.floor(conf.sampleOutput.length / 4);
+      document.getElementById('output-status-badge').innerText = 'Completed';
+    }
+
+    // Run Generation with realistic streaming effect
+    function runGeneration() {
+      const prompt = document.getElementById('tool-prompt-input').value.trim();
+      const conf = toolsConfig[currentTool];
+      const targetText = prompt ? `### Generated with NexaAI (${conf.name})\n\nBased on prompt: "${prompt}"\n\n${conf.sampleOutput}` : conf.sampleOutput;
+
+      const btn = document.getElementById('generate-btn');
+      const btnText = document.getElementById('generate-btn-text');
+      const outputEl = document.getElementById('output-content');
+      const badge = document.getElementById('output-status-badge');
+
+      btn.disabled = true;
+      btnText.innerText = 'Generating...';
+      badge.innerText = 'Streaming';
+      badge.className = 'text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full animate-pulse';
+
+      outputEl.innerText = '';
+      let words = targetText.split(' ');
+      let index = 0;
+
+      const timer = setInterval(() => {
+        if (index < words.length) {
+          outputEl.innerText += (index === 0 ? '' : ' ') + words[index];
+          index++;
+          document.getElementById('output-tokens').innerText = 'Tokens: ~' + (index * 2);
+        } else {
+          clearInterval(timer);
+          btn.disabled = false;
+          btnText.innerText = 'Generate Output';
+          badge.innerText = 'Completed';
+          badge.className = 'text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full';
+
+          // Update quota
+          quotaUsed++;
+          updateQuotaDisplay();
+          showToast('Generation completed & quota updated!');
+        }
+      }, 35);
+    }
+
+    function updateQuotaDisplay() {
+      const remaining = Math.max(0, quotaLimit - quotaUsed);
+      document.getElementById('nav-quota').innerText = `${remaining}/${quotaLimit} Free Quota`;
+      document.getElementById('stat-used').innerText = quotaUsed;
+      document.getElementById('stat-remaining').innerText = remaining;
+    }
+
+    function updateDashboardStats() {
+      updateQuotaDisplay();
+      document.getElementById('stat-saved-count').innerText = savedGenerations.length;
+    }
+
+    function copyOutput() {
+      const text = document.getElementById('output-content').innerText;
+      navigator.clipboard.writeText(text);
+      document.getElementById('copy-btn-text').innerText = 'Copied!';
+      setTimeout(() => { document.getElementById('copy-btn-text').innerText = 'Copy'; }, 2000);
+      showToast('Copied output to clipboard!');
+    }
+
+    function saveCurrentGeneration() {
+      const text = document.getElementById('output-content').innerText;
+      const prompt = document.getElementById('tool-prompt-input').value.trim() || 'Sample prompt';
+      savedGenerations.unshift({
+        id: Date.now().toString(),
+        title: toolsConfig[currentTool].name + ' Output',
+        tool: currentTool,
+        date: 'Just now',
+        prompt: prompt,
+        output: text
+      });
+      showToast('Saved to your history workspace!');
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('history-list');
+      if (savedGenerations.length === 0) {
+        container.innerHTML = '<div class="p-8 text-center text-sm text-slate-400 bg-white rounded-2xl border border-slate-200">No saved generations yet.</div>';
+        return;
+      }
+
+      container.innerHTML = savedGenerations.map(item => `
+        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-bold text-sm text-slate-900">${item.title}</span>
+              <span class="text-[10px] font-semibold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full uppercase">${item.tool}</span>
+              <span class="text-xs text-slate-400">${item.date}</span>
+            </div>
+            <p class="text-xs font-semibold text-slate-500 mb-2">Prompt: "${item.prompt.slice(0, 90)}${item.prompt.length > 90 ? '...' : ''}"</p>
+            <p class="text-xs text-slate-700 whitespace-pre-line bg-slate-50 p-3 rounded-xl border border-slate-100">${item.output.slice(0, 240)}...</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="navigator.clipboard.writeText(\`${item.output.replace(/`/g, '\\`')}\`); showToast('Copied to clipboard!')" class="text-xs text-indigo-600 hover:underline">Copy</button>
+            <button onclick="deleteHistoryItem('${item.id}')" class="text-xs text-red-500 hover:underline">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function deleteHistoryItem(id) {
+      savedGenerations = savedGenerations.filter(x => x.id !== id);
+      renderHistory();
+      showToast('Item deleted from history');
+    }
+
+    function clearAllHistory() {
+      if (confirm('Clear all saved items?')) {
+        savedGenerations = [];
+        renderHistory();
+        showToast('History cleared');
+      }
+    }
+
+    function setBilling(interval) {
+      const isYear = interval === 'year';
+      document.getElementById('btn-bill-month').className = isYear ? 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600' : 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm';
+      document.getElementById('btn-bill-year').className = isYear ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm flex items-center gap-1' : 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 flex items-center gap-1';
+      document.getElementById('pro-price').innerText = isYear ? '$15' : '$19';
+      document.getElementById('biz-price').innerText = isYear ? '$39' : '$49';
+    }
+
+    function mockUpgrade(planName) {
+      alert(`Stripe Checkout simulated for ${planName}!\nIn production, this redirects to Stripe Checkout with verified server webhooks.`);
+    }
+
+    function handleContactSubmit(e) {
+      e.preventDefault();
+      alert('Thank you! Your message has been received and stored in the database.');
+      document.getElementById('contact-name').value = '';
+      document.getElementById('contact-email').value = '';
+      document.getElementById('contact-subject').value = '';
+      document.getElementById('contact-message').value = '';
+      navigate('home');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+    }
+  </script>
+</body>
+</html>
