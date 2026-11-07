@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: nexa-ai-project
+    env: node
+    plan: free
+    buildCommand: yarn install && yarn build
+    startCommand: npm start
